@@ -7,7 +7,10 @@ class Sawyer_Scraper:
 
     def __init__(self):
         self.home_URL = "https://www.hisawyer.com"
-        self.browser = webdriver.Firefox()
+        self.browser = webdriver.Chrome(executable_path=r'/Users/Chris/Downloads/chromedriver')
+
+    def stop(self):
+        self.browser.quit()
 
     def get_url(self):
         return self.browser.current_url
@@ -65,7 +68,8 @@ class Sawyer_Scraper:
                 self.insurance_id = self.browser.find_element_by_xpath("//*[contains(text(), 'Policy or Certificate Number')]/ancestor::div[@class='row']/following-sibling::div").text
                 self.output_file.write(self.insurance_id + '\n')
                 self.hospital = self.browser.find_element_by_xpath("//*[contains(text(), 'Preferred Hospital')]/ancestor::div[@class='row']/following-sibling::div").text
-                self.output_file.write("Preferred Hospital : " +  self.hospital + '\n')
+                self.hospital_phone = self.browser.find_element_by_xpath("//*[contains(text(), 'Hospital Phone Number')]/ancestor::div[@class='row']/following-sibling::div").text
+                self.output_file.write("Preferred Hospital : " +  self.hospital + ", " + self.hospital_phone + '\n')
 
         self.browser.get(self.home_URL + "/portal/schedules/other")
         return "success"

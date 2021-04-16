@@ -24,7 +24,7 @@ class Hi_Saywer:
         self.b2 = Button(window, text = 'Go!', width = 12, command = self.get_data)
         self.b2.grid(row = 3, column = 0, columnspan = 2)
 
-        self.b3 = Button(window, text = 'Exit', width = 12, command = window.destroy)
+        self.b3 = Button(window, text = 'Exit', width = 12, command = self.stop)
         self.b3.grid(row = 5, column = 0, columnspan = 2)
 
         self.username = StringVar()
@@ -67,6 +67,10 @@ class Hi_Saywer:
         if complete == "success":
             self.text_box.delete(1.0, END)
             self.text_box.insert(END, "Success! Information saved to " + self.file_name.get())
+
+    def stop(self):
+        self.scraper.stop()
+        window.destroy()
 
 window = Tk()
 
