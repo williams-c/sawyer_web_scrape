@@ -21,8 +21,11 @@ class Hi_Saywer:
         self.b1 = Button(window, text = 'Login', width = 12, command = self.login)
         self.b1.grid(row = 1, column = 0, columnspan = 2)
 
-        self.b2 = Button(window, text = 'Go!', width = 12, command = self.get_data)
+        self.b2 = Button(window, text = 'Child Participants', width = 12, command = self.get_children_data)
         self.b2.grid(row = 3, column = 0, columnspan = 2)
+
+        self.b2 = Button(window, text = 'Adult Participants', width = 12, command = self.get_adult_data)
+        self.b2.grid(row = 3, column = 2, columnspan = 2)
 
         self.b3 = Button(window, text = 'Exit', width = 12, command = self.stop)
         self.b3.grid(row = 5, column = 0, columnspan = 2)
@@ -58,12 +61,22 @@ class Hi_Saywer:
             self.text_box.delete(1.0, END)
             self.text_box.insert(END, "Login Complete! Navigate to desired camp page, enter the name of the file you want your data saved under and click GO!")
 
-    def get_data(self):
+    def get_children_data(self):
         if self.login_status == False:
             self.text_box.delete(1.0, END)
             self.text_box.insert(END, "Please Login first")
             return
-        complete = self.scraper.scrape(self.file_name.get())
+        complete = self.scraper.scrape_children(self.file_name.get())
+        if complete == "success":
+            self.text_box.delete(1.0, END)
+            self.text_box.insert(END, "Success! Information saved to " + self.file_name.get())
+
+    def get_adult_data(self):
+        if self.login_status == False:
+            self.text_box.delete(1.0, END)
+            self.text_box.insert(END, "Please Login first")
+            return
+        complete = self.scraper.scrape_adults(self.file_name.get())
         if complete == "success":
             self.text_box.delete(1.0, END)
             self.text_box.insert(END, "Success! Information saved to " + self.file_name.get())

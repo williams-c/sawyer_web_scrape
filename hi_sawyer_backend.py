@@ -7,7 +7,9 @@ class Sawyer_Scraper:
 
     def __init__(self):
         self.home_URL = "https://www.hisawyer.com"
-        self.browser = webdriver.Chrome(executable_path=r'/Users/Chris/Downloads/chromedriver')
+        # chris /Users/Chris/Downloads/chromedriver
+        # cascade /Users/cascadelawrence-yee/Downloads/chromedriver
+        self.browser = webdriver.Chrome(executable_path=r'/Users/cascadelawrence-yee/Downloads/chromedriver')
 
     def stop(self):
         self.browser.quit()
@@ -31,7 +33,7 @@ class Sawyer_Scraper:
         self.browser.get(self.home_URL + "/portal/weekly_calendar")
         self.browser.get(self.home_URL + "/portal/schedules/other")
 
-    def scrape(self, filename):
+    def scrape_children(self, filename):
         self.filename = filename + ".txt"
         self.camp_name = self.browser.find_element_by_xpath("//*[@class='portal-navbar-title-container']").text
         self.html = self.browser.page_source
@@ -71,8 +73,46 @@ class Sawyer_Scraper:
                 self.hospital_phone = self.browser.find_element_by_xpath("//*[contains(text(), 'Hospital Phone Number')]/ancestor::div[@class='row']/following-sibling::div").text
                 self.output_file.write("Preferred Hospital : " +  self.hospital + ", " + self.hospital_phone + '\n')
 
-        self.browser.get(self.home_URL + "/portal/schedules/other")
-        return "success"
+    def scrape_adults(self, filename):
+            self.filename = filename + ".txt"
+            self.camp_name = self.browser.find_element_by_xpath("//*[@class='portal-navbar-title-container']").text
+            self.html = self.browser.page_source
+            self.soup = BeautifulSoup(self.html, "html.parser")
+            self.all = self.soup.find_all("div",{"class": "portal-list-content class-summary"})[1]
+            self.attendees = self.all.find_all("div",{"class": "portal-list-row"})
+            self.attendees.pop(0)
+            self.all_parents = []
+
+            for self.item in self.attendees:
+                self.parent = self.item.find_all("div", {"class": "portal-list-content"})[0]
+                self.parent = self.parent.find("a")
+                self.all_parents.append(self.parent.attrs['href'])
+
+            with open(self.filename, 'w') as self.output_file:
+                for self.parent in self.all_parents:
+                    self.browser.get(self.home_URL + self.parent)
+                    self.name = self.browser.find_element_by_xpath("//*[@class='member-name padding-left-20']").text
+                    self.output_file.write("Client Name : " + self.name +  '\n')
+                    self.phone = self.browser.find_element_by_xpath("//*[contains(text(), 'Phone')]/following-sibling::div").text
+                    self.output_file.write("Phone: " + self.phone + '\n')
+                    self.birthdate = self.browser.find_element_by_xpath("//*[contains(text(), 'Birthdate')]/ancestor::div[@class='row']/following-sibling::div").text
+                    self.output_file.write("Birthdate: " + self.birthdate + '\n')
+                    self.emergency_contact_name = self.browser.find_element_by_xpath("//*[contains(text(), 'Emergency Contact Information')]/ancestor::div[@class='row']/following-sibling::div").text
+                    self.output_file.write("Emergency Contact: " + self.emergency_contact_name + ', ')
+                    self.emergency_contact_number = self.browser.find_element_by_xpath("//*[contains(text(), 'Emergency Contact Number')]/ancestor::div[@class='row']/following-sibling::div").text
+                    self.output_file.write(self.emergency_contact_number + ", ")
+                    self.emergency_contact_relationship = self.browser.find_element_by_xpath("//*[contains(text(), 'Emergency Contact Relationship')]/ancestor::div[@class='row']/following-sibling::div").text
+                    self.output_file.write(self.emergency_contact_relationship + '\n')
+                    self.insurance_name = self.browser.find_element_by_xpath("//*[contains(text(), 'Insurance Company Name')]/ancestor::div[@class='row']/following-sibling::div").text
+                    self.output_file.write("Insurance: " + self.insurance_name + ", ")
+                    self.insurance_id = self.browser.find_element_by_xpath("//*[contains(text(), 'Policy or Certificate Number')]/ancestor::div[@class='row']/following-sibling::div").text
+                    self.output_file.write(self.insurance_id + '\n')
+                    self.hospital = self.browser.find_element_by_xpath("//*[contains(text(), 'Preferred Hospital')]/ancestor::div[@class='row']/following-sibling::div").text
+                    self.hospital_phone = self.browser.find_element_by_xpath("//*[contains(text(), 'Hospital Phone Number')]/ancestor::div[@class='row']/following-sibling::div").text
+                    self.output_file.write("Preferred Hospital : " +  self.hospital + ", " + self.hospital_phone + '\n')
+
+            self.browser.get(self.home_URL + "/portal/schedules/other")
+            return "success"
 
     def close(self):
         self.browser.quit()
